@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance. - Gabriel & Duda</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bgLight: '#F3F7F5',
+            surface: '#FFFFFF',
+            sidebarDark: '#162621',
+            sidebarActive: '#264239',
+            military: '#2E4F44',
+            militaryLight: '#E6F0EC',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Sora"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-bgLight text-slate-800 font-sans antialiased pb-24 lg:pb-0">
+
+  <!-- ================= TELA DE LOGIN SEGURA ================= -->
+  <div id="tela-login" class="fixed inset-0 bg-sidebarDark flex items-center justify-center z-50 p-4">
+    <div class="bg-surface rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6 border border-emerald-500/20">
+      <div class="flex flex-col items-center text-center">
+        <div class="w-14 h-14 rounded-2xl bg-military text-emerald-400 flex items-center justify-center mb-3 shadow-lg">
+          <i data-lucide="wallet" class="w-8 h-8"></i>
+        </div>
+        <h1 class="font-display text-2xl font-bold text-slate-800">Finance<span class="text-emerald-500">.</span></h1>
+        <p class="text-xs text-slate-500 mt-1">Acesso exclusivo — Gabriel & Duda</p>
+      </div>
+
+      <form onsubmit="fazerLogin(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="font-semibold text-slate-600 block mb-1">E-mail de acesso</label>
+          <input id="login-email" type="email" required placeholder="seu@email.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-military">
+        </div>
+        <div>
+          <label class="font-semibold text-slate-600 block mb-1">Senha</label>
+          <input id="login-senha" type="password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-military">
+        </div>
+        <p id="login-erro" class="text-rose-600 font-semibold text-center hidden"></p>
+        <button id="btn-entrar" type="submit" class="w-full bg-military hover:bg-sidebarDark text-white font-semibold py-3.5 rounded-xl transition shadow-md">
+          Entrar no Finance.
+        </button>
+      </form>
+
+      <p class="text-[11px] text-center text-slate-400">🔒 Ambiente criptografado e sincronizado na nuvem</p>
+    </div>
+  </div>
+
+  <!-- ================= APLICATIVO PRINCIPAL ================= -->
+  <div id="app-conteudo" class="hidden min-h-screen flex">
+
+    <!-- SIDEBAR LATERAL (Desktop) -->
+    <aside class="hidden lg:flex flex-col w-64 bg-sidebarDark text-white justify-between fixed h-full z-30 select-none">
+      <div>
+        <div class="p-6 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
+            <i data-lucide="wallet" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <span class="font-display text-xl font-bold tracking-tight block leading-none">Finance<span class="text-emerald-400">.</span></span>
+            <span class="text-[11px] text-slate-400">Seu dinheiro, seus planos.</span>
+          </div>
+        </div>
+
+        <nav class="px-3 space-y-1 mt-2 text-sm">
+          <button onclick="navegar('inicio')" id="nav-inicio" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-sidebarActive text-white font-semibold transition">
+            <i data-lucide="home" class="w-4 h-4 text-emerald-400"></i> Início
+          </button>
+          <button onclick="navegar('ape')" id="nav-ape" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 font-medium transition">
+            <i data-lucide="building-2" class="w-4 h-4"></i> Nosso Apê
+          </button>
+          <button onclick="navegar('categorias')" id="nav-categorias" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 font-medium transition">
+            <i data-lucide="tag" class="w-4 h-4"></i> Categorias
+          </button>
+          <button onclick="navegar('metas')" id="nav-metas" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 font-medium transition">
+            <i data-lucide="target" class="w-4 h-4"></i> Metas & Projeção
+          </button>
+          <button onclick="navegar('cartao')" id="nav-cartao" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 font-medium transition">
+            <i data-lucide="credit-card" class="w-4 h-4"></i> Cartão de Crédito
+          </button>
+          <button onclick="navegar('relatorio')" id="nav-relatorio" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 font-medium transition">
+            <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Relatório
+          </button>
+          <button onclick="navegar('config')" id="nav-config" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 font-medium transition">
+            <i data-lucide="user-check" class="w-4 h-4"></i> Dados do Casal
+          </button>
+        </nav>
+      </div>
+
+      <div class="p-4 space-y-3">
+        <div class="bg-sidebarActive/70 p-3 rounded-2xl flex items-center justify-between">
+          <div class="flex items-center gap-3 overflow-hidden">
+            <div class="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 font-bold text-xs shrink-0">G&D</div>
+            <div class="truncate">
+              <p class="text-xs font-bold text-white leading-tight">Gabriel & Duda</p>
+              <p id="email-logado" class="text-[10px] text-emerald-400 truncate">Conectado</p>
+            </div>
+          </div>
+          <button onclick="fazerLogout()" title="Sair da conta" class="text-slate-400 hover:text-rose-400 p-1">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="flex-1 lg:ml-64 flex flex-col min-w-0 w-full">
+
+      <!-- TOPBAR -->
+      <header class="bg-surface/90 backdrop-blur border-b border-slate-200/70 px-4 lg:px-8 py-3.5 sticky top-0 z-20 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <span class="lg:hidden font-display font-bold text-lg text-sidebarDark">Finance<span class="text-emerald-500">.</span></span>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="flex bg-bgLight p-1 rounded-xl border border-slate-200/60 text-xs font-semibold">
+            <button onclick="filtrarDono('todos')" id="filtro-todos" class="px-2.5 py-1 rounded-lg bg-military text-white transition">Todos</button>
+            <button onclick="filtrarDono('Gabriel')" id="filtro-Gabriel" class="px-2.5 py-1 rounded-lg text-slate-600 hover:bg-white transition">Gabriel</button>
+            <button onclick="filtrarDono('Duda')" id="filtro-Duda" class="px-2.5 py-1 rounded-lg text-slate-600 hover:bg-white transition">Duda</button>
+          </div>
+
+          <button onclick="alternarPrivacidade()" title="Modo Privacidade" class="p-2 rounded-xl bg-bgLight hover:bg-militaryLight text-slate-700 transition">
+            <i id="icone-olho" data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+
+          <button onclick="navegar('config')" title="Ver Dados de Gabriel e Duda" class="px-3 py-1.5 rounded-xl bg-militaryLight text-military font-bold text-xs flex items-center gap-1.5">
+            <i data-lucide="id-card" class="w-4 h-4"></i> <span class="hidden sm:inline">Docs Casal</span>
+          </button>
+
+          <button onclick="fazerLogout()" class="lg:hidden p-2 rounded-xl bg-rose-50 text-rose-600">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- CONTEÚDO -->
+      <main class="p-4 lg:p-8 max-w-[1400px] w-full mx-auto space-y-6">
+
+        <!-- ================= ABA 1: INÍCIO ================= -->
+        <div id="view-inicio" class="aba-view space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 class="font-display text-2xl font-bold text-slate-800">Olá, Gabriel e Duda! 👋</h1>
+              <p class="text-xs text-slate-500 mt-0.5">Aqui está o resumo sincronizado da vida financeira de vocês.</p>
+            </div>
+            <button onclick="abrirModalTransacao()" class="bg-military hover:bg-sidebarDark text-white text-xs font-semibold px-4 py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> + Adicionar Receita / Despesa
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <div class="xl:col-span-8 space-y-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-surface p-4 rounded-2xl border border-slate-200/60 shadow-sm">
+                  <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="wallet" class="w-4 h-4"></i></div>
+                    <span class="text-xs text-slate-500 font-medium">Saldo Livre</span>
+                  </div>
+                  <p id="card-saldo-livre" class="font-display text-xl font-bold text-slate-800">R$ 0,00</p>
+                  <p class="text-[11px] text-slate-400 mt-1">Receitas - Débitos</p>
+                </div>
+
+                <div class="bg-surface p-4 rounded-2xl border border-slate-200/60 shadow-sm">
+                  <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+                    <span class="text-xs text-slate-500 font-medium">Receitas do mês</span>
+                  </div>
+                  <p id="card-receitas" class="font-display text-xl font-bold text-emerald-700">R$ 0,00</p>
+                  <p class="text-[11px] text-slate-400 mt-1">Entradas lançadas</p>
+                </div>
+
+                <div class="bg-surface p-4 rounded-2xl border border-slate-200/60 shadow-sm">
+                  <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center"><i data-lucide="arrow-down" class="w-4 h-4"></i></div>
+                    <span class="text-xs text-slate-500 font-medium">Débitos do mês</span>
+                  </div>
+                  <p id="card-despesas" class="font-display text-xl font-bold text-rose-600">R$ 0,00</p>
+                  <p class="text-[11px] text-slate-400 mt-1">Saídas lançadas</p>
+                </div>
+
+                <div class="bg-surface p-4 rounded-2xl border border-slate-200/60 shadow-sm cursor-pointer hover:border-military" onclick="navegar('ape')">
+                  <div class="flex items-center gap-2.5 mb-2">
+                    <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="building-2" class="w-4 h-4"></i></div>
+                    <span class="text-xs text-slate-500 font-medium">Nosso Apê</span>
+                  </div>
+                  <p id="card-valor-ape" class="font-display text-xl font-bold text-slate-800">R$ 0,00</p>
+                  <p id="card-status-ape" class="text-[11px] text-slate-400 mt-1">0 parcelas</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-surface p-5 rounded-2xl border border-slate-200/60 shadow-sm">
+                  <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-display font-bold text-sm text-slate-800">Despesas por categoria</h2>
+                    <button onclick="navegar('categorias')" class="text-xs font-semibold text-military hover:underline">Ver todas →</button>
+                  </div>
+                  <div id="lista-categorias-inicio" class="space-y-3"></div>
+                </div>
+
+                <div class="bg-surface p-5 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-4">
+                      <h2 class="font-display font-bold text-sm text-slate-800">Contas e saldos</h2>
+                      <button onclick="adicionarContaSaldo()" class="text-xs font-semibold bg-militaryLight text-military px-2.5 py-1 rounded-lg hover:bg-military hover:text-white transition">+ Conta</button>
+                    </div>
+                    <div id="lista-contas-saldos" class="space-y-3 text-xs"></div>
+                  </div>
+                  <div class="mt-4 pt-3 border-t border-slate-100 bg-militaryLight/60 px-3.5 py-2.5 rounded-xl flex items-center justify-between">
+                    <span class="text-xs font-semibold text-military">Saldo total em contas</span>
+                    <span id="soma-contas-saldos" class="font-display font-bold text-sm text-military">R$ 0,00</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-surface p-5 rounded-2xl border border-slate-200/60 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                  <h2 class="font-display font-bold text-sm text-slate-800">Transações Lançadas</h2>
+                  <button onclick="abrirModalTransacao()" class="text-xs font-semibold text-military hover:underline">+ Novo lançamento</button>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr class="text-slate-400 border-b border-slate-100">
+                        <th class="py-2">Data</th>
+                        <th class="py-2">Descrição</th>
+                        <th class="py-2">Categoria</th>
+                        <th class="py-2">Valor</th>
+                        <th class="py-2">Responsável</th>
+                        <th class="py-2 text-right">Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabela-transacoes" class="divide-y divide-slate-100"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="xl:col-span-4 space-y-6">
+              <div class="bg-surface p-5 rounded-2xl border border-slate-200/60 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                  <h2 class="font-display font-bold text-sm text-slate-800">Próximos vencimentos</h2>
+                  <button onclick="adicionarVencimento()" class="text-xs font-semibold bg-militaryLight text-military px-2.5 py-1 rounded-lg hover:bg-military hover:text-white transition">+ Adicionar</button>
+                </div>
+                <div id="lista-vencimentos" class="space-y-3 text-xs"></div>
+              </div>
+
+              <div class="bg-surface p-5 rounded-2xl border border-slate-200/60 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                  <h2 class="font-display font-bold text-sm text-slate-800">Metas</h2>
+                  <button onclick="navegar('metas')" class="text-xs font-semibold text-military hover:underline">Gerenciar →</button>
+                </div>
+                <div id="lista-metas-inicio" class="space-y-4"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= ABA 2: NOSSO APÊ ================= -->
+        <div id="view-ape" class="aba-view hidden space-y-6">
+          <div class="bg-surface p-6 rounded-2xl border border-slate-200/60 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 class="font-display text-lg font-bold text-slate-800">Nosso Apê — Financiamento</h2>
+                <p class="text-xs text-slate-500">Adicione parcelas, marque o checkbox de pago ou exclua registros.</p>
+              </div>
+              <button onclick="adicionarParcelaApeManual()" class="bg-military text-white text-xs font-semibold px-4 py-2.5 rounded-xl">+ Adicionar Parcela</button>
+            </div>
+            <div id="lista-parcelas-ape" class="space-y-3"></div>
+          </div>
+        </div>
+
+        <!-- ================= ABA 3: CATEGORIAS ================= -->
+        <div id="view-categorias" class="aba-view hidden space-y-6">
+          <div class="bg-surface p-6 rounded-2xl border border-slate-200/60 shadow-sm">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h2 class="font-display text-lg font-bold text-slate-800">Gastos Sintéticos por Categoria</h2>
+                <p class="text-xs text-slate-500">Soma automática de todas as suas despesas cadastradas.</p>
+              </div>
+              <button onclick="abrirModalTransacao()" class="bg-military text-white text-xs font-semibold px-4 py-2.5 rounded-xl">+ Novo Gasto</button>
+            </div>
+            <div id="grid-categorias-completo" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+          </div>
+        </div>
+
+        <!-- ================= ABA 4: METAS & PROJEÇÃO ================= -->
+        <div id="view-metas" class="aba-view hidden space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-7 bg-surface p-6 rounded-2xl border border-slate-200/60 shadow-sm">
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h2 class="font-display text-lg font-bold text-slate-800">Metas Financeiras</h2>
+                  <p class="text-xs text-slate-500">Crie metas, adicione saldo ou exclua quando desejar.</p>
+                </div>
+                <button onclick="criarNovaMeta()" class="bg-military text-white text-xs font-semibold px-3.5 py-2 rounded-xl">+ Nova Meta</button>
+              </div>
+              <div id="lista-metas-completa" class="space-y-4"></div>
+            </div>
+
+            <div class="lg:col-span-5 bg-surface p-6 rounded-2xl border border-slate-200/60 shadow-sm space-y-4">
+              <h2 class="font-display text-lg font-bold text-slate-800">Projeção Anual (12 Meses)</h2>
+              <p class="text-xs text-slate-500">As rendas abaixo também ficam salvas na nuvem ao clicar em Salvar Rendas.</p>
+              <div class="space-y-3 pt-2">
+                <div>
+                  <label class="text-xs font-semibold text-slate-600">Renda Mensal Gabriel (R$)</label>
+                  <input type="number" id="renda-gabriel" value="0" oninput="atualizarTela()" class="w-full mt-1 px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-semibold">
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-slate-600">Renda Mensal Duda (R$)</label>
+                  <input type="number" id="renda-duda" value="0" oninput="atualizarTela()" class="w-full mt-1 px-3.5 py-2 rounded-xl border border-slate-200 text-sm font-semibold">
+                </div>
+                <button onclick="salvarDadosCasalNuvem()" class="w-full bg-militaryLight text-military font-bold text-xs py-2 rounded-xl hover:bg-military hover:text-white transition">Salvar Rendas na Nuvem</button>
+              </div>
+              <div class="bg-bgLight p-4 rounded-2xl space-y-2.5 text-xs border border-slate-200/60">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Renda Anual Somada (12x):</span>
+                  <span id="proj-renda-anual" class="font-bold text-emerald-700">R$ 0,00</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Débitos Anuais (Base Mês x 12):</span>
+                  <span id="proj-debito-anual" class="font-bold text-rose-600">R$ 0,00</span>
+                </div>
+                <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
+                  <span class="font-bold text-military">Saldo Positivo p/ Investir no Ano:</span>
+                  <span id="proj-saldo-anual" class="font-display font-bold text-base text-military">R$ 0,00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= ABA 5: CARTÃO DE CRÉDITO ================= -->
+        <div id="view-cartao" class="aba-view hidden space-y-6">
+          <div class="bg-surface p-6 rounded-2xl border border-slate-200/60 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 class="font-display text-lg font-bold text-slate-800">Cartão de Crédito</h2>
+                <p class="text-xs text-slate-500">Gerencie as compras lançadas no cartão de crédito.</p>
+              </div>
+              <button onclick="abrirModalTransacao('Cartão de Crédito')" class="bg-military text-white text-xs font-semibold px-4 py-2.5 rounded-xl">+ Nova Compra no Cartão</button>
+            </div>
+            <div id="lista-compras-cartao" class="divide-y divide-slate-100 text-xs"></div>
+          </div>
+        </div>
+
+        <!-- ================= ABA 6: RELATÓRIO ================= -->
+        <div id="view-relatorio" class="aba-view hidden space-y-6">
+          <div class="bg-surface p-6 rounded-2xl border border-slate-200/60 shadow-sm space-y-4">
+            <h2 class="font-display text-lg font-bold text-slate-800">Saúde Financeira do Casal</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
+                <span class="text-xs font-bold text-emerald-800 uppercase">Percentual Poupado no Mês</span>
+                <p id="rel-poupanca" class="font-display text-2xl font-bold text-emerald-700 mt-1">0%</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-bgLight border border-slate-200">
+                <span class="text-xs font-bold text-slate-500 uppercase">Total de Transações</span>
+                <p id="rel-qtd" class="font-display text-2xl font-bold text-slate-800 mt-1">0</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-bgLight border border-slate-200">
+                <span class="text-xs font-bold text-slate-500 uppercase">Balanço Atual</span>
+                <p id="rel-status" class="font-display text-2xl font-bold text-military mt-1">Equilibrado</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= ABA 7: DADOS CADASTRAIS DO CASAL (NUVEM) ================= -->
+        <div id="view-config" class="aba-view hidden space-y-6">
+          <div class="bg-surface p-6 rounded-2xl border border-slate-200/60 shadow-sm space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 class="font-display text-lg font-bold text-slate-800">Dados Pessoais & Documentos — Gabriel & Duda</h2>
+                <p class="text-xs text-slate-500">Salvos na nuvem para consulta rápida sempre que um precisar dos dados do outro.</p>
+              </div>
+              <button id="btn-salvar-cfg" onclick="salvarDadosCasalNuvem()" class="bg-military hover:bg-sidebarDark text-white text-xs font-semibold px-5 py-3 rounded-xl shadow-sm transition">
+                💾 Salvar Dados na Nuvem
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+              <!-- Card Dados Gabriel -->
+              <div class="p-5 rounded-2xl bg-bgLight space-y-3 border border-slate-200/60">
+                <h3 class="font-display font-bold text-sm text-military flex items-center gap-2">
+                  <i data-lucide="user" class="w-4 h-4"></i> Dados do Gabriel
+                </h3>
+                <div>
+                  <label class="text-slate-500 font-semibold block mb-1">Nome Completo</label>
+                  <div class="flex gap-1.5">
+                    <input id="cfg-g-nome" type="text" placeholder="Nome completo" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                    <button onclick="copiarCampo('cfg-g-nome')" title="Copiar" class="px-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-militaryLight"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="text-slate-500 font-semibold block mb-1">CPF</label>
+                    <div class="flex gap-1">
+                      <input id="cfg-g-cpf" type="text" placeholder="000.000.000-00" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                      <button onclick="copiarCampo('cfg-g-cpf')" title="Copiar" class="px-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-militaryLight"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-slate-500 font-semibold block mb-1">RG</label>
+                    <div class="flex gap-1">
+                      <input id="cfg-g-rg" type="text" placeholder="RG" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                      <button onclick="copiarCampo('cfg-g-rg')" title="Copiar" class="px-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-militaryLight"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-slate-500 font-semibold block mb-1">Data de Nascimento</label>
+                  <input id="cfg-g-nasc" type="text" placeholder="07/12/2001" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                </div>
+                <div>
+                  <label class="text-slate-500 font-semibold block mb-1">E-mail & Telefone</label>
+                  <div class="flex gap-1.5">
+                    <input id="cfg-g-contato" type="text" placeholder="email@gmail.com | (47) 99999-9999" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                    <button onclick="copiarCampo('cfg-g-contato')" title="Copiar" class="px-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-militaryLight"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-slate-500 font-semibold block mb-1">Chave PIX / Dados Bancários</label>
+                  <div class="flex gap-1.5">
+                    <input id="cfg-g-pix" type="text" placeholder="Chave PIX, Agência e Conta" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                    <button onclick="copiarCampo('cfg-g-pix')" title="Copiar" class="px-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-militaryLight"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Dados Duda -->
+              <div class="p-5 rounded-2xl bg-bgLight space-y-3 border border-slate-200/60">
+                <h3 class="font-display font-bold text-sm text-military flex items-center gap-2">
+                  <i data-lucide="user" class="w-4 h-4"></i> Dados da Duda
+                </h3>
+                <div>
+                  <label class="text-slate-500 font-semibold block mb-1">Nome Completo</label>
+                  <div class="flex gap-1.5">
+                    <input id="cfg-d-nome" type="text" placeholder="Nome completo" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                    <button onclick="copiarCampo('cfg-d-nome')" title="Copiar" class="px-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-militaryLight"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="text-slate-500 font-semibold block mb-1">CPF</label>
+                    <div class="flex gap-1">
+                      <input id="cfg-d-cpf" type="text" placeholder="000.000.000-00" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                      <button onclick="copiarCampo('cfg-d-cpf')" title="Copiar" class="px-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-militaryLight"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-slate-500 font-semibold block mb-1">RG</label>
+                    <div class="flex gap-1">
+                      <input id="cfg-d-rg" type="text" placeholder="RG" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                      <button onclick="copiarCampo('cfg-d-rg')" title="Copiar" class="px-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-militaryLight"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-slate-500 font-semibold block mb-1">Data de Nascimento</label>
+                  <input id="cfg-d-nasc" type="text" placeholder="DD/MM/AAAA" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                </div>
+                <div>
+                  <label class="text-slate-500 font-semibold block mb-1">E-mail & Telefone</label>
+                  <div class="flex gap-1.5">
+                    <input id="cfg-d-contato" type="text" placeholder="email@gmail.com | (47) 99999-9999" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                    <button onclick="copiarCampo('cfg-d-contato')" title="Copiar" class="px-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-militaryLight"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-slate-500 font-semibold block mb-1">Chave PIX / Dados Bancários</label>
+                  <div class="flex gap-1.5">
+                    <input id="cfg-d-pix" type="text" placeholder="Chave PIX, Agência e Conta" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                    <button onclick="copiarCampo('cfg-d-pix')" title="Copiar" class="px-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-militaryLight"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- BARRA DE NAVEGAÇÃO INFERIOR (Mobile) -->
+  <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-slate-200 px-3 py-2.5 flex justify-around items-center z-40 text-[10px] font-semibold text-slate-500">
+    <button onclick="navegar('inicio')" class="flex flex-col items-center gap-1 text-military"><i data-lucide="home" class="w-4 h-4"></i>Início</button>
+    <button onclick="navegar('ape')" class="flex flex-col items-center gap-1"><i data-lucide="building-2" class="w-4 h-4"></i>Apê</button>
+    <button onclick="navegar('metas')" class="flex flex-col items-center gap-1"><i data-lucide="target" class="w-4 h-4"></i>Metas</button>
+    <button onclick="navegar('cartao')" class="flex flex-col items-center gap-1"><i data-lucide="credit-card" class="w-4 h-4"></i>Cartão</button>
+    <button onclick="navegar('config')" class="flex flex-col items-center gap-1"><i data-lucide="user-check" class="w-4 h-4"></i>Dados</button>
+  </nav>
+
+  <!-- MODAL ADICIONAR TRANSAÇÃO -->
+  <div id="modal-transacao" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-surface rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+      <div class="flex justify-between items-center">
+        <h3 class="font-display font-bold text-base text-slate-800">Adicionar Lançamento</h3>
+        <button onclick="fecharModalTransacao()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold text-slate-600">Data (Ex: 20/10)</label>
+          <input id="t-data" type="text" placeholder="20/10" class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200">
+        </div>
+        <div>
+          <label class="font-semibold text-slate-600">Descrição</label>
+          <input id="t-desc" type="text" placeholder="Ex: Supermercado, Luz, Salário..." class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-semibold text-slate-600">Valor (R$)</label>
+            <input id="t-valor" type="number" step="0.01" placeholder="150.00" class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200">
+          </div>
+          <div>
+            <label class="font-semibold text-slate-600">Tipo</label>
+            <select id="t-tipo" class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200 bg-white">
+              <option value="debito">Débito (Saída)</option>
+              <option value="credito">Crédito (Receita)</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-semibold text-slate-600">Categoria</label>
+            <select id="t-cat" class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200 bg-white">
+              <option value="Moradia">Moradia</option>
+              <option value="Alimentação">Alimentação</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Saúde">Saúde</option>
+              <option value="Outros">Outros</option>
+              <option value="Receita">Receita</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-semibold text-slate-600">Responsável</label>
+            <select id="t-dono" class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200 bg-white">
+              <option value="Conjunto">Conjunto</option>
+              <option value="Gabriel">Gabriel</option>
+              <option value="Duda">Duda</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="font-semibold text-slate-600">Meio / Conta</label>
+          <select id="t-conta" class="w-full mt-1 px-3 py-2 rounded-xl border border-slate-200 bg-white">
+            <option value="Conta Principal">Conta Principal</option>
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="Conta Digital">Conta Digital</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="salvarTransacao()" class="w-full bg-military hover:bg-sidebarDark text-white font-semibold py-3 rounded-xl text-xs transition">
+        Salvar Lançamento
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // SUAS CHAVES DO SUPABASE CONFIGURADAS
+    // =========================================================================
+    const SUPABASE_URL = "https://wetfrnlnpxwdpugzcnzk.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndldGZybmxucHh3ZHB1Z3pjbnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0NDA2MDgsImV4cCI6MjEwODAxNjYwOH0.U_LOMptd0D7O9oyC0fY8SxUQVo3_M1HbfNA-KdsCXfg";
+
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let modoPrivacidade = false;
+    let filtroResponsavel = 'todos';
+
+    let transacoes = [];
+    let parcelasApe = [];
+    let metas = [];
+    let contasSaldos = [];
+    let vencimentos = [];
+
+    const configCoresCat = {
+      'Moradia': { cor: 'bg-blue-500', icone: 'home' },
+      'Alimentação': { cor: 'bg-amber-500', icone: 'utensils' },
+      'Transporte': { cor: 'bg-emerald-600', icone: 'car' },
+      'Lazer': { cor: 'bg-purple-500', icone: 'gamepad-2' },
+      'Saúde': { cor: 'bg-rose-500', icone: 'heart-pulse' },
+      'Outros': { cor: 'bg-slate-500', icone: 'more-horizontal' }
+    };
+
+    function formatarMoeda(v) {
+      if (modoPrivacidade) return 'R$ •••••';
+      return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    // ================= AUTENTICAÇÃO (LOGIN E LOGOUT) =================
+    async function verificarSessao() {
+      lucide.createIcons();
+      const { data: { session } } = await db.auth.getSession();
+      if (session) {
+        mostrarApp(session.user.email);
+      } else {
+        document.getElementById('tela-login').classList.remove('hidden');
+        document.getElementById('app-conteudo').classList.add('hidden');
+      }
+    }
+
+    async function fazerLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-senha').value;
+      const erroEl = document.getElementById('login-erro');
+      const btn = document.getElementById('btn-entrar');
+
+      erroEl.classList.add('hidden');
+      btn.innerText = 'Verificando...';
+
+      const { data, error } = await db.auth.signInWithPassword({ email, password });
+
+      btn.innerText = 'Entrar no Finance.';
+      if (error) {
+        erroEl.innerText = 'E-mail ou senha incorretos.';
+        erroEl.classList.remove('hidden');
+        return;
+      }
+
+      mostrarApp(data.user.email);
+    }
+
+    async function fazerLogout() {
+      await db.auth.signOut();
+      window.location.reload();
+    }
+
+    function mostrarApp(email) {
+      document.getElementById('tela-login').classList.add('hidden');
+      document.getElementById('app-conteudo').classList.remove('hidden');
+      document.getElementById('email-logado').innerText = email;
+      carregarBanco();
+    }
+
+    // ================= CARREGAR TUDO DO SUPABASE =================
+    async function carregarBanco() {
+      const [t, a, m, c, v, cfg] = await Promise.all([
+        db.from('transacoes').select('*').order('criado_em', { ascending: false }),
+        db.from('financiamento_ape').select('*').order('numero_parcela', { ascending: true }),
+        db.from('metas').select('*').order('criado_em', { ascending: true }),
+        db.from('contas_saldos').select('*').order('criado_em', { ascending: true }),
+        db.from('proximos_vencimentos').select('*').order('criado_em', { ascending: true }),
+        db.from('dados_casal').select('*').eq('id', 1).maybeSingle()
+      ]);
+
+      transacoes = t.data || [];
+      parcelasApe = a.data || [];
+      metas = m.data || [];
+      contasSaldos = c.data || [];
+      vencimentos = v.data || [];
+
+      if (cfg && cfg.data) {
+        const d = cfg.data;
+        document.getElementById('cfg-g-nome').value = d.g_nome || '';
+        document.getElementById('cfg-g-cpf').value = d.g_cpf || '';
+        document.getElementById('cfg-g-rg').value = d.g_rg || '';
+        document.getElementById('cfg-g-nasc').value = d.g_nasc || '';
+        document.getElementById('cfg-g-contato').value = d.g_contato || '';
+        document.getElementById('cfg-g-pix').value = d.g_pix || '';
+        document.getElementById('renda-gabriel').value = d.g_renda || 0;
+
+        document.getElementById('cfg-d-nome').value = d.d_nome || '';
+        document.getElementById('cfg-d-cpf').value = d.d_cpf || '';
+        document.getElementById('cfg-d-rg').value = d.d_rg || '';
+        document.getElementById('cfg-d-nasc').value = d.d_nasc || '';
+        document.getElementById('cfg-d-contato').value = d.d_contato || '';
+        document.getElementById('cfg-d-pix').value = d.d_pix || '';
+        document.getElementById('renda-duda').value = d.d_renda || 0;
+      }
+
+      atualizarTela();
+    }
+
+    // ================= SALVAR DADOS CADASTRAIS NA NUVEM =================
+    async function salvarDadosCasalNuvem() {
+      const btn = document.getElementById('btn-salvar-cfg');
+      if (btn) btn.innerText = 'Salvando...';
+
+      const payload = {
+        id: 1,
+        g_nome: document.getElementById('cfg-g-nome').value,
+        g_cpf: document.getElementById('cfg-g-cpf').value,
+        g_rg: document.getElementById('cfg-g-rg').value,
+        g_nasc: document.getElementById('cfg-g-nasc').value,
+        g_contato: document.getElementById('cfg-g-contato').value,
+        g_pix: document.getElementById('cfg-g-pix').value,
+        g_renda: parseFloat(document.getElementById('renda-gabriel').value) || 0,
+        d_nome: document.getElementById('cfg-d-nome').value,
+        d_cpf: document.getElementById('cfg-d-cpf').value,
+        d_rg: document.getElementById('cfg-d-rg').value,
+        d_nasc: document.getElementById('cfg-d-nasc').value,
+        d_contato: document.getElementById('cfg-d-contato').value,
+        d_pix: document.getElementById('cfg-d-pix').value,
+        d_renda: parseFloat(document.getElementById('renda-duda').value) || 0,
+        atualizado_em: new Date().toISOString()
+      };
+
+      const { error } = await db.from('dados_casal').upsert(payload);
+      if (btn) btn.innerText = '💾 Salvar Dados na Nuvem';
+
+      if (error) {
+        alert('Erro ao salvar na nuvem: verifique se você rodou o SQL da tabela dados_casal no Supabase.');
+      } else {
+        alert('Dados do casal salvos na nuvem! Já estão disponíveis no celular e no computador.');
+        atualizarTela();
+      }
+    }
+
+    function copiarCampo(idInput) {
+      const el = document.getElementById(idInput);
+      if (!el || !el.value) return;
+      navigator.clipboard.writeText(el.value);
+      alert('Copiado: ' + el.value);
+    }
+
+    // ================= RENDERIZAÇÃO GERAL =================
+    function atualizarTela() {
+      const listaFiltrada = transacoes.filter(t =>
+        filtroResponsavel === 'todos' ? true : (t.responsavel === filtroResponsavel || t.responsavel === 'Conjunto')
+      );
+
+      let totalReceitas = 0;
+      let totalDespesas = 0;
+      const mapaCat = { 'Moradia': 0, 'Alimentação': 0, 'Transporte': 0, 'Lazer': 0, 'Saúde': 0, 'Outros': 0 };
+
+      listaFiltrada.forEach(t => {
+        const val = Number(t.valor);
+        if (t.tipo === 'credito') totalReceitas += val;
+        else {
+          totalDespesas += val;
+          if (mapaCat[t.categoria] !== undefined) mapaCat[t.categoria] += val;
+          else mapaCat['Outros'] += val;
+        }
+      });
+
+      const saldoLivre = totalReceitas - totalDespesas;
+      document.getElementById('card-saldo-livre').innerText = formatarMoeda(saldoLivre);
+      document.getElementById('card-receitas').innerText = formatarMoeda(totalReceitas);
+      document.getElementById('card-despesas').innerText = formatarMoeda(totalDespesas);
+
+      const pagasApe = parcelasApe.filter(p => p.paga).length;
+      const ultimaParcelaValor = parcelasApe.length > 0 ? parcelasApe[0].valor : 0;
+      document.getElementById('card-valor-ape').innerText = formatarMoeda(ultimaParcelaValor);
+      document.getElementById('card-status-ape').innerText = `${pagasApe}/${parcelasApe.length} pagas`;
+
+      const catInicio = document.getElementById('lista-categorias-inicio');
+      const catGrid = document.getElementById('grid-categorias-completo');
+      catInicio.innerHTML = '';
+      catGrid.innerHTML = '';
+
+      Object.entries(mapaCat).forEach(([nome, valor]) => {
+        const perc = totalDespesas > 0 ? Math.round((valor / totalDespesas) * 100) : 0;
+        const cfg = configCoresCat[nome];
+        catInicio.innerHTML += `
+          <div class="flex items-center justify-between text-xs py-1">
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full ${cfg.cor} text-white flex items-center justify-center"><i data-lucide="${cfg.icone}" class="w-3.5 h-3.5"></i></div>
+              <span class="font-semibold text-slate-700">${nome}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-display font-bold text-slate-800">${formatarMoeda(valor)}</span>
+              <span class="text-slate-400 w-8 text-right">${perc}%</span>
+            </div>
+          </div>`;
+
+        catGrid.innerHTML += `
+          <div class="p-4 rounded-2xl bg-bgLight border border-slate-200/70 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-700">${nome}</span>
+              <span class="text-xs font-bold bg-military text-white px-2 py-0.5 rounded-md">${perc}%</span>
+            </div>
+            <p class="font-display text-lg font-bold text-slate-800">${formatarMoeda(valor)}</p>
+            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+              <div class="${cfg.cor} h-full rounded-full" style="width:${perc}%"></div>
+            </div>
+          </div>`;
+      });
+
+      const divContas = document.getElementById('lista-contas-saldos');
+      divContas.innerHTML = contasSaldos.length === 0 ? '<p class="text-slate-400 py-2">Nenhuma conta cadastrada.</p>' : '';
+      let somaContas = 0;
+      contasSaldos.forEach(c => {
+        somaContas += Number(c.saldo);
+        divContas.innerHTML += `
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <div>
+              <p class="font-semibold text-slate-800">${c.nome_banco}</p>
+              <p class="text-[10px] text-emerald-600">● ${c.titular}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-display font-bold text-slate-800">${formatarMoeda(c.saldo)}</span>
+              <button onclick="excluirContaSaldo('${c.id}')" class="text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>`;
+      });
+      document.getElementById('soma-contas-saldos').innerText = formatarMoeda(somaContas);
+
+      const tbody = document.getElementById('tabela-transacoes');
+      tbody.innerHTML = listaFiltrada.length === 0 ? '<tr><td colspan="6" class="py-6 text-center text-slate-400">Nenhum lançamento cadastrado ainda.</td></tr>' : '';
+      listaFiltrada.forEach(t => {
+        const cor = t.tipo === 'credito' ? 'text-emerald-600' : 'text-rose-600';
+        const sinal = t.tipo === 'credito' ? '+ ' : '- ';
+        tbody.innerHTML += `
+          <tr class="hover:bg-bgLight/60">
+            <td class="py-3 text-slate-500">${t.data_texto}</td>
+            <td class="py-3 font-semibold text-slate-800">${t.descricao}</td>
+            <td class="py-3 text-slate-600">${t.categoria}</td>
+            <td class="py-3 font-display font-bold ${cor}">${sinal}${formatarMoeda(t.valor)}</td>
+            <td class="py-3 text-slate-500">${t.conta} • <strong>${t.responsavel}</strong></td>
+            <td class="py-3 text-right">
+              <button onclick="excluirTransacao('${t.id}')" class="text-slate-400 hover:text-rose-600 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </td>
+          </tr>`;
+      });
+
+      const divVenc = document.getElementById('lista-vencimentos');
+      divVenc.innerHTML = vencimentos.length === 0 ? '<p class="text-slate-400 py-2">Nenhuma conta pendente.</p>' : '';
+      vencimentos.forEach(v => {
+        divVenc.innerHTML += `
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <div class="flex items-center gap-2.5">
+              <input type="checkbox" ${v.pago ? 'checked' : ''} onchange="toggleVencimento('${v.id}', ${!v.pago})" class="w-4 h-4 accent-military rounded cursor-pointer">
+              <div>
+                <p class="font-semibold ${v.pago ? 'line-through text-slate-400' : 'text-slate-800'}">${v.descricao}</p>
+                <p class="text-[10px] text-slate-400">Vence em ${v.vencimento}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="text-right">
+                <p class="font-display font-bold text-slate-800">${formatarMoeda(v.valor)}</p>
+                <span class="text-[9px] px-1.5 py-0.5 rounded font-semibold ${v.pago ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${v.pago ? 'Pago' : 'Pendente'}</span>
+              </div>
+              <button onclick="excluirVencimento('${v.id}')" class="text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>`;
+      });
+
+      const mInicio = document.getElementById('lista-metas-inicio');
+      const mCompleta = document.getElementById('lista-metas-completa');
+      mInicio.innerHTML = metas.length === 0 ? '<p class="text-xs text-slate-400">Nenhuma meta criada.</p>' : '';
+      mCompleta.innerHTML = metas.length === 0 ? '<p class="text-xs text-slate-400">Clique em "+ Nova Meta" para começar.</p>' : '';
+
+      metas.forEach(m => {
+        const perc = m.valor_alvo > 0 ? Math.min(100, Math.round((m.valor_atual / m.valor_alvo) * 100)) : 0;
+        mInicio.innerHTML += `
+          <div class="space-y-1 text-xs">
+            <div class="flex justify-between font-semibold"><span>${m.titulo}</span><span>${perc}%</span></div>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div class="bg-military h-full" style="width:${perc}%"></div></div>
+            <p class="text-[11px] text-slate-500">${formatarMoeda(m.valor_atual)} / ${formatarMoeda(m.valor_alvo)}</p>
+          </div>`;
+
+        mCompleta.innerHTML += `
+          <div class="p-4 rounded-2xl bg-bgLight border border-slate-200/70 space-y-2">
+            <div class="flex justify-between items-center">
+              <div>
+                <h4 class="font-bold text-sm text-slate-800">${m.titulo}</h4>
+                <p class="text-xs text-slate-500">${formatarMoeda(m.valor_atual)} de ${formatarMoeda(m.valor_alvo)} (${perc}%)</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="somarSaldoMeta('${m.id}', ${m.valor_atual})" class="bg-military text-white text-xs font-semibold px-3 py-1.5 rounded-xl">+ Saldo</button>
+                <button onclick="excluirMeta('${m.id}')" class="text-slate-400 hover:text-rose-600 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden"><div class="bg-emerald-600 h-full" style="width:${perc}%"></div></div>
+          </div>`;
+      });
+
+      const divApe = document.getElementById('lista-parcelas-ape');
+      divApe.innerHTML = parcelasApe.length === 0 ? '<p class="text-xs text-slate-400">Nenhuma parcela cadastrada.</p>' : '';
+      parcelasApe.forEach(p => {
+        divApe.innerHTML += `
+          <div class="flex items-center justify-between p-4 rounded-2xl ${p.paga ? 'bg-bgLight' : 'bg-white border border-amber-200'}">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" ${p.paga ? 'checked' : ''} onchange="toggleParcelaApe('${p.id}', ${!p.paga})" class="w-5 h-5 accent-military rounded cursor-pointer">
+              <div>
+                <p class="text-sm font-bold ${p.paga ? 'line-through text-slate-400' : 'text-slate-800'}">Parcela ${p.numero_parcela} — ${p.mes_referencia}</p>
+                <p class="text-xs text-slate-400">Vencimento: ${p.vencimento}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-display font-bold text-sm text-slate-800">${formatarMoeda(p.valor)}</span>
+              <button onclick="excluirParcelaApe('${p.id}')" class="text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+          </div>`;
+      });
+
+      const divCartao = document.getElementById('lista-compras-cartao');
+      const comprasCartao = transacoes.filter(t => t.conta === 'Cartão de Crédito');
+      divCartao.innerHTML = comprasCartao.length === 0 ? '<p class="py-4 text-slate-400">Nenhuma compra no cartão lançada.</p>' : '';
+      comprasCartao.forEach(t => {
+        divCartao.innerHTML += `
+          <div class="py-3 flex items-center justify-between">
+            <div>
+              <p class="font-bold text-slate-800">${t.descricao}</p>
+              <p class="text-slate-400">${t.data_texto} • ${t.categoria} • ${t.responsavel}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-display font-bold text-rose-600">- ${formatarMoeda(t.valor)}</span>
+              <button onclick="excluirTransacao('${t.id}')" class="text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+          </div>`;
+      });
+
+      const rG = parseFloat(document.getElementById('renda-gabriel')?.value) || 0;
+      const rD = parseFloat(document.getElementById('renda-duda')?.value) || 0;
+      const rendaAnual = (rG + rD) * 12;
+      const debitoAnual = totalDespesas * 12;
+      document.getElementById('proj-renda-anual').innerText = formatarMoeda(rendaAnual);
+      document.getElementById('proj-debito-anual').innerText = formatarMoeda(debitoAnual);
+      document.getElementById('proj-saldo-anual').innerText = formatarMoeda(rendaAnual - debitoAnual);
+
+      const percPoupado = totalReceitas > 0 ? Math.round(((totalReceitas - totalDespesas) / totalReceitas) * 100) : 0;
+      document.getElementById('rel-poupanca').innerText = `${percPoupado}%`;
+      document.getElementById('rel-qtd').innerText = transacoes.length;
+      document.getElementById('rel-status').innerText = saldoLivre >= 0 ? 'Positivo' : 'Atenção';
+
+      lucide.createIcons();
+    }
+
+    // ================= OPERAÇÕES NO BANCO =================
+    function abrirModalTransacao(contaPadrao = 'Conta Principal') {
+      document.getElementById('t-conta').value = contaPadrao;
+      document.getElementById('modal-transacao').classList.remove('hidden');
+      document.getElementById('modal-transacao').classList.add('flex');
+    }
+
+    function fecharModalTransacao() {
+      document.getElementById('modal-transacao').classList.add('hidden');
+      document.getElementById('modal-transacao').classList.remove('flex');
+    }
+
+    async function salvarTransacao() {
+      const nova = {
+        id: crypto.randomUUID(),
+        data_texto: document.getElementById('t-data').value || new Date().toLocaleDateString('pt-BR').slice(0, 5),
+        descricao: document.getElementById('t-desc').value.trim(),
+        valor: parseFloat(document.getElementById('t-valor').value) || 0,
+        tipo: document.getElementById('t-tipo').value,
+        categoria: document.getElementById('t-cat').value,
+        responsavel: document.getElementById('t-dono').value,
+        conta: document.getElementById('t-conta').value
+      };
+      if (!nova.descricao || nova.valor <= 0) return alert('Preencha a descrição e um valor válido.');
+
+      await db.from('transacoes').insert([nova]);
+      transacoes.unshift(nova);
+      document.getElementById('t-desc').value = '';
+      document.getElementById('t-valor').value = '';
+      fecharModalTransacao();
+      atualizarTela();
+    }
+
+    async function excluirTransacao(id) {
+      await db.from('transacoes').delete().eq('id', id);
+      transacoes = transacoes.filter(t => String(t.id) !== String(id));
+      atualizarTela();
+    }
+
+    async function adicionarContaSaldo() {
+      const nome_banco = prompt('Nome da Conta ou Banco (Ex: Itaú, Inter, Nubank):');
+      if (!nome_banco) return;
+      const titular = prompt('Titular (Conjunto, Gabriel ou Duda):', 'Conjunto') || 'Conjunto';
+      const saldo = parseFloat(prompt('Saldo atual na conta (R$):', '0')) || 0;
+      const nova = { id: crypto.randomUUID(), nome_banco, titular, saldo };
+      await db.from('contas_saldos').insert([nova]);
+      contasSaldos.push(nova);
+      atualizarTela();
+    }
+
+    async function excluirContaSaldo(id) {
+      await db.from('contas_saldos').delete().eq('id', id);
+      contasSaldos = contasSaldos.filter(c => String(c.id) !== String(id));
+      atualizarTela();
+    }
+
+    async function adicionarVencimento() {
+      const descricao = prompt('Descrição da conta a vencer (Ex: Internet, Luz, Condomínio):');
+      if (!descricao) return;
+      const vencimento = prompt('Data de vencimento (Ex: 25/10):', '25/10') || '25/10';
+      const valor = parseFloat(prompt('Valor (R$):', '100')) || 0;
+      const novo = { id: crypto.randomUUID(), descricao, vencimento, valor, pago: false };
+      await db.from('proximos_vencimentos').insert([novo]);
+      vencimentos.push(novo);
+      atualizarTela();
+    }
+
+    async function toggleVencimento(id, novoStatus) {
+      await db.from('proximos_vencimentos').update({ pago: novoStatus }).eq('id', id);
+      const item = vencimentos.find(v => String(v.id) === String(id));
+      if (item) item.pago = novoStatus;
+      atualizarTela();
+    }
+
+    async function excluirVencimento(id) {
+      await db.from('proximos_vencimentos').delete().eq('id', id);
+      vencimentos = vencimentos.filter(v => String(v.id) !== String(id));
+      atualizarTela();
+    }
+
+    async function criarNovaMeta() {
+      const titulo = prompt('Qual o objetivo da meta (Ex: Viagem, Reserva)?');
+      if (!titulo) return;
+      const valor_alvo = parseFloat(prompt('Qual o valor total da meta (R$)?', '10000')) || 0;
+      const nova = { id: crypto.randomUUID(), titulo, prazo: 'Em andamento', valor_atual: 0, valor_alvo };
+      await db.from('metas').insert([nova]);
+      metas.push(nova);
+      atualizarTela();
+    }
+
+    async function somarSaldoMeta(id, valorAtual) {
+      const soma = parseFloat(prompt('Quanto deseja adicionar a esta meta (R$)?', '500')) || 0;
+      if (soma <= 0) return;
+      const novoTotal = Number(valorAtual) + soma;
+      await db.from('metas').update({ valor_atual: novoTotal }).eq('id', id);
+      const m = metas.find(x => String(x.id) === String(id));
+      if (m) m.valor_atual = novoTotal;
+      atualizarTela();
+    }
+
+    async function excluirMeta(id) {
+      await db.from('metas').delete().eq('id', id);
+      metas = metas.filter(m => String(m.id) !== String(id));
+      atualizarTela();
+    }
+
+    async function adicionarParcelaApeManual() {
+      const numero_parcela = parseInt(prompt('Número da parcela (Ex: 1, 2, 18):', parcelasApe.length + 1)) || 1;
+      const mes_referencia = prompt('Mês/Ano de referência (Ex: Novembro/2026):', 'Novembro/2026') || '';
+      const vencimento = prompt('Data de vencimento (Ex: 10/11/2026):', '10/11/2026') || '';
+      const valor = parseFloat(prompt('Valor da parcela (R$):', '2350')) || 0;
+      const nova = { id: crypto.randomUUID(), numero_parcela, mes_referencia, vencimento, valor, paga: false };
+      await db.from('financiamento_ape').insert([nova]);
+      parcelasApe.push(nova);
+      atualizarTela();
+    }
+
+    async function toggleParcelaApe(id, paga) {
+      await db.from('financiamento_ape').update({ paga }).eq('id', id);
+      const p = parcelasApe.find(x => String(x.id) === String(id));
+      if (p) p.paga = paga;
+      atualizarTela();
+    }
+
+    async function excluirParcelaApe(id) {
+      await db.from('financiamento_ape').delete().eq('id', id);
+      parcelasApe = parcelasApe.filter(p => String(p.id) !== String(id));
+      atualizarTela();
+    }
+
+    function navegar(aba) {
+      document.querySelectorAll('.aba-view').forEach(v => v.classList.add('hidden'));
+      document.getElementById(`view-${aba}`).classList.remove('hidden');
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.remove('bg-sidebarActive', 'text-white', 'font-semibold');
+        b.classList.add('text-slate-300');
+      });
+      const ativo = document.getElementById(`nav-${aba}`);
+      if (ativo) {
+        ativo.classList.add('bg-sidebarActive', 'text-white', 'font-semibold');
+        ativo.classList.remove('text-slate-300');
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function alternarPrivacidade() {
+      modoPrivacidade = !modoPrivacidade;
+      document.getElementById('icone-olho').setAttribute('data-lucide', modoPrivacidade ? 'eye-off' : 'eye');
+      atualizarTela();
+    }
+
+    function filtrarDono(dono) {
+      filtroResponsavel = dono;
+      ['todos', 'Gabriel', 'Duda'].forEach(id => {
+        document.getElementById(`filtro-${id}`).className = id === dono
+          ? 'px-2.5 py-1 rounded-lg bg-military text-white transition'
+          : 'px-2.5 py-1 rounded-lg text-slate-600 hover:bg-white transition';
+      });
+      atualizarTela();
+    }
+
+    verificarSessao();
+  </script>
+</body>
+</html>
